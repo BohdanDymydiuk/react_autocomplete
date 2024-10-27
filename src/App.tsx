@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Autocomplete } from './components/Autocomplete';
 import './App.scss';
 import { peopleFromServer } from './data/people';
@@ -20,13 +20,13 @@ export const App: React.FC = () => {
     }, delay);
   }
 
-  window.addEventListener('click', () => {
-    setFocus(false);
-  });
-
   const filteredPeople = useMemo(() => {
     return peopleFromServer.filter(person => person.name.includes(query));
   }, [query]);
+
+  useEffect(() => {
+    setFocus(false);
+  }, [selectedPerson]);
 
   return (
     <div className="container">
