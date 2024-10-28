@@ -1,32 +1,30 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Autocomplete } from './components/Autocomplete';
 import './App.scss';
 import { peopleFromServer } from './data/people';
 import { Person } from './types/Person';
 
 export const App: React.FC = () => {
+  const timerId = useRef(0);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const delay = 300;
+  const [query, setQuery] = useState('');
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const { name, born, died } = selectedPerson || {};
-  const [delay] = useState(300);
-  const [query, setQuery] = useState('');
-  const [focus, setFocus] = useState(false);
-  const timerId = useRef(0);
 
   function saveQuery(newQuery: string) {
     window.clearTimeout(timerId.current);
 
     timerId.current = window.setTimeout(() => {
-      setQuery(newQuery.trim());
+      setQuery(newQuery.toLowerCase().trim());
     }, delay);
   }
 
   const filteredPeople = useMemo(() => {
-    return peopleFromServer.filter(person => person.name.includes(query));
+    return peopleFromServer.filter(person =>
+      person.name.toLowerCase().includes(query),
+    );
   }, [query]);
-
-  useEffect(() => {
-    setFocus(false);
-  }, [selectedPerson]);
 
   return (
     <div className="container">
@@ -39,10 +37,9 @@ export const App: React.FC = () => {
 
         <Autocomplete
           people={filteredPeople}
+          inputRef={inputRef}
           saveQuery={saveQuery}
           setSelectedPerson={setSelectedPerson}
-          setFocus={setFocus}
-          focus={focus}
         />
 
         {filteredPeople.length === 0 && (
